@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nilemarket/core/supabase/supabase_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/responsive.dart';
@@ -36,13 +38,44 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     return null;
   }
 
-  void _handleContinue() {
-    if (_formKey.currentState!.validate()) {
-      // Supabase profile update call goes here later
-      debugPrint(
-        'Username: ${_usernameController.text}, Name: ${_fullNameController.text}',
-      );
-      context.go('/'); // temporary: goes back to splash until Home exists
+  bool _isLoading = false;
+
+  Future<void> _handleContinue() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      await supabase
+          .from('profiles')
+          .update({
+            'username': _usernameController.text.trim(),
+            'full_name': _fullNameController.text.trim(),
+            'bio': _bioController.text.trim(),
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', supabase.auth.currentUser!.id);
+
+      if (mounted) context.go('/'); // temporary until Home exists
+    } on PostgrestException catch (e) {
+      if (mounted) {
+        final message = e.code == '23505'
+            ? 'That username is already taken'
+            : e.message;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Something went wrong. Please try again.'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -174,8 +207,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           ),
           const SizedBox(height: 28),
           ElevatedButton(
-            onPressed: _handleContinue,
-            child: const Text('Continue'),
+            onPressed: _isLoading ? null : _handleContinue,
+            child: _isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Continue'),
           ),
         ],
       ),

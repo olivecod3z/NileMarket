@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/supabase/supabase_client.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   const EmailVerificationScreen({super.key});
@@ -15,6 +17,7 @@ class EmailVerificationScreen extends StatefulWidget {
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   bool _isResending = false;
+  bool _isChecking = false;
   int _resendCooldown = 0;
   Timer? _timer;
 
@@ -37,14 +40,55 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   Future<void> _handleResend() async {
     setState(() => _isResending = true);
-    // Supabase resend call goes here later
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() => _isResending = false);
-    _startCooldown();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Verification email resent')),
-      );
+    try {
+      final email = supabase.auth.currentUser?.email;
+      if (email != null) {
+        await supabase.auth.resend(type: OtpType.signup, email: email);
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Verification email resent')),
+        );
+      }
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
+      }
+    } finally {
+      if (mounted) setState(() => _isResending = false);
+      _startCooldown();
+    }
+  }
+
+  Future<void> _handleCheckVerification() async {
+    setState(() => _isChecking = true);
+    try {
+      final response = await supabase.auth.refreshSession();
+      final isVerified = response.session?.user.emailConfirmedAt != null;
+
+      if (!mounted) return;
+
+      if (isVerified) {
+        context.push('/complete-profile');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Not verified yet — check your email and click the link first",
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not check verification status')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isChecking = false);
     }
   }
 
@@ -89,8 +133,17 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: () => context.push('/complete-profile'),
-                  child: const Text("I've verified my email"),
+                  onPressed: _isChecking ? null : _handleCheckVerification,
+                  child: _isChecking
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text("I've verified my email"),
                 ),
                 const SizedBox(height: 16),
                 TextButton(

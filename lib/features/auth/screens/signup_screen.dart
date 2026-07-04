@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/supabase/supabase_client.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -29,7 +31,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) return 'Email is required';
-    if (!value.contains('@')) return 'Enter a valid email';
+    if (!value.trim().toLowerCase().endsWith('@nileuniversity.edu.ng')) {
+      return 'Please use your Nile University email address';
+    }
     return null;
   }
 
@@ -45,11 +49,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return null;
   }
 
-  void _handleSignUp() {
-    if (_formKey.currentState!.validate()) {
-      // Supabase sign-up call goes here later
-      debugPrint('Sign up: ${_emailController.text}');
-      context.push('/email-verification');
+  bool _isLoading = false;
+
+  Future<void> _handleSignUp() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      await supabase.auth.signUp(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (mounted) context.push('/email-verification');
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Something went wrong. Please try again.'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -154,13 +183,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           const SizedBox(height: 28),
           ElevatedButton(
-            onPressed: _handleSignUp,
-            child: const Text('Sign Up'),
-          ),
-          const SizedBox(height: 16),
-          TextButton(
-            onPressed: () => context.push('/login'),
-            child: const Text('Already have an account? Log in'),
+            onPressed: _isLoading ? null : _handleSignUp,
+            child: _isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Sign Up'),
           ),
         ],
       ),
