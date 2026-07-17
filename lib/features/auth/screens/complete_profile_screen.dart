@@ -56,7 +56,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           })
           .eq('id', supabase.auth.currentUser!.id);
 
-      if (mounted) context.go('/'); // temporary until Home exists
+      if (mounted) context.go('/home'); // temporary until Home exists
     } on PostgrestException catch (e) {
       if (mounted) {
         final message = e.code == '23505'

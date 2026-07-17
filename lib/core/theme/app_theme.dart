@@ -35,7 +35,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.button),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(

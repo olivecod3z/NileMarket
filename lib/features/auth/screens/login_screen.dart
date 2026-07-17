@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text,
       );
 
-      if (mounted) context.go('/'); // temporary until Home exists
+      if (mounted) context.go('/home'); // temporary until Home exists
     } on AuthException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(

@@ -1,5 +1,8 @@
 import 'package:go_router/go_router.dart';
 import 'package:nilemarket/features/auth/screens/complete_profile_screen.dart';
+import 'package:nilemarket/features/marketplace/screens/home_screen.dart';
+import 'package:nilemarket/features/selling/screens/create_listing_screen.dart';
+import 'package:nilemarket/shared_screens/coming_soon_screen.dart';
 import '../../features/auth/screens/splash_screen.dart';
 import '../../features/auth/screens/welcome_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
@@ -23,6 +26,24 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/complete-profile',
       builder: (context, state) => const CompleteProfileScreen(),
+    ),
+    GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+    GoRoute(
+      path: '/search',
+      builder: (context, state) => const ComingSoonScreen(title: 'Search'),
+    ),
+    GoRoute(
+      path: '/create-listing',
+      builder: (context, state) => const CreateListingScreen(),
+    ),
+    GoRoute(
+      path: '/saved',
+      builder: (context, state) =>
+          const ComingSoonScreen(title: 'Saved Listings'),
+    ),
+    GoRoute(
+      path: '/profile',
+      builder: (context, state) => const ComingSoonScreen(title: 'My Profile'),
     ),
   ],
 );

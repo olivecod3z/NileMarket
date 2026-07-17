@@ -19,6 +19,7 @@ class NileMarketApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.light,
+      scrollBehavior: const ScrollBehavior().copyWith(scrollbars: false),
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
     );
