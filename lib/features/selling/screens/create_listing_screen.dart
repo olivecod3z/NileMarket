@@ -45,7 +45,10 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
       _listingType == 'goods' ? goodsCategories : servicesCategories;
 
   Future<void> _pickImages() async {
-    final images = await _picker.pickMultiImage(imageQuality: 80);
+    final images = await _picker.pickMultiImage(
+      imageQuality: 90,
+      maxWidth: 1600,
+    );
     if (images.isNotEmpty) {
       setState(() => _pickedImages = images.take(3).toList());
     }

@@ -49,7 +49,7 @@ class ListingCard extends StatelessWidget {
             Stack(
               children: [
                 AspectRatio(
-                  aspectRatio: 0.85, // taller than square — image is the hero
+                  aspectRatio: 1, // taller than square — image is the hero
                   child: imageUrl.isNotEmpty
                       ? CachedNetworkImage(
                           imageUrl: imageUrl,
