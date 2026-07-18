@@ -143,6 +143,7 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
     final bio = profile['bio'] ?? '';
     final rating = (profile['rating'] as num?)?.toDouble();
     final createdAt = DateTime.tryParse(profile['created_at'] ?? '');
+    final avatarUrl = profile?['avatar_url'];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -152,13 +153,14 @@ class _SellerProfileScreenState extends State<SellerProfileScreen> {
           Row(
             children: [
               CircleAvatar(
-                radius: 36,
+                radius: 22,
                 backgroundColor: AppColors.divider,
-                child: Icon(
-                  Icons.person,
-                  size: 36,
-                  color: AppColors.textSecondary,
-                ),
+                backgroundImage: avatarUrl != null
+                    ? NetworkImage(avatarUrl)
+                    : null,
+                child: avatarUrl == null
+                    ? Icon(Icons.person, color: AppColors.textSecondary)
+                    : null,
               ),
               const SizedBox(width: 16),
               Expanded(

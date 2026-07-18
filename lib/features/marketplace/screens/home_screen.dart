@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nilemarket/core/constants/app_categories.dart';
+import 'package:nilemarket/core/supabase/saved_listings_repository.dart';
 import 'package:nilemarket/core/supabase/supabase_client.dart';
 import 'package:nilemarket/core/theme/app_colors.dart';
 import 'package:nilemarket/core/theme/app_radius.dart';
@@ -24,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedType = 'goods'; // 'goods' or 'services'
   String? _selectedCategory;
   late Future<List<Map<String, dynamic>>> _listingsFuture;
-  final Set<String> _savedListingIds = {};
+  Set<String> _savedListingIds = {};
 
   List<CategoryItem> get _currentCategories => _selectedType == 'goods'
       ? homeFeaturedGoodsCategories
@@ -50,7 +51,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _listingsFuture = _fetchListings();
+    _loadSavedIds();
     _startBannerAutoScroll();
+  }
+
+  Future<void> _loadSavedIds() async {
+    final ids = await SavedListingsRepository.fetchSavedIds();
+    if (mounted) setState(() => _savedListingIds = ids);
   }
 
   void _startBannerAutoScroll() {
@@ -447,15 +454,35 @@ class _HomeScreenState extends State<HomeScreen> {
                 condition: listing['condition'],
                 createdAt: DateTime.tryParse(listing['created_at'] ?? ''),
                 isSaved: _savedListingIds.contains(id),
-                onSaveTap: () {
+                onSaveTap: () async {
+                  final wasSaved = _savedListingIds.contains(id);
                   setState(() {
-                    if (_savedListingIds.contains(id)) {
+                    if (wasSaved) {
                       _savedListingIds.remove(id);
                     } else {
                       _savedListingIds.add(id);
                     }
                   });
+                  try {
+                    if (wasSaved) {
+                      await SavedListingsRepository.unsave(id);
+                    } else {
+                      await SavedListingsRepository.save(id);
+                    }
+                  } catch (e) {
+                    // revert on failure
+                    if (mounted) {
+                      setState(() {
+                        if (wasSaved) {
+                          _savedListingIds.add(id);
+                        } else {
+                          _savedListingIds.remove(id);
+                        }
+                      });
+                    }
+                  }
                 },
+
                 onTap: () => context.push('/listing/$id'),
               );
             }, childCount: listings.length),

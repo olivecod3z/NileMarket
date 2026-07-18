@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nilemarket/core/supabase/saved_listings_repository.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:nilemarket/core/theme/app_colors.dart';
@@ -28,6 +29,12 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
   void initState() {
     super.initState();
     _listingFuture = _fetchListing();
+    _checkIfSaved();
+  }
+
+  Future<void> _checkIfSaved() async {
+    final ids = await SavedListingsRepository.fetchSavedIds();
+    if (mounted) setState(() => _isSaved = ids.contains(widget.listingId));
   }
 
   @override
@@ -43,6 +50,25 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
         .eq('id', widget.listingId)
         .maybeSingle();
     return response;
+  }
+
+  Future<void> _toggleSave() async {
+    final wasSaved = _isSaved;
+    setState(() => _isSaved = !wasSaved);
+    try {
+      if (wasSaved) {
+        await SavedListingsRepository.unsave(widget.listingId);
+      } else {
+        await SavedListingsRepository.save(widget.listingId);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSaved = wasSaved);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not update saved status')),
+        );
+      }
+    }
   }
 
   Future<void> _contactOnWhatsApp(Map<String, dynamic> listing) async {
@@ -277,7 +303,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
           top: 12,
           right: 12,
           child: GestureDetector(
-            onTap: () => setState(() => _isSaved = !_isSaved),
+            onTap: _toggleSave,
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: const BoxDecoration(
@@ -351,6 +377,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
     final profile = listing['profiles'];
     final username = profile?['username'] ?? 'Unknown seller';
     final rating = (profile?['rating'] as num?)?.toDouble();
+    final avatarUrl = profile?['avatar_url'];
 
     return GestureDetector(
       onTap: () => context.push('/seller/${listing['seller_id']}'),
@@ -366,7 +393,12 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
             CircleAvatar(
               radius: 22,
               backgroundColor: AppColors.divider,
-              child: Icon(Icons.person, color: AppColors.textSecondary),
+              backgroundImage: avatarUrl != null
+                  ? NetworkImage(avatarUrl)
+                  : null,
+              child: avatarUrl == null
+                  ? Icon(Icons.person, color: AppColors.textSecondary)
+                  : null,
             ),
             const SizedBox(width: 12),
             Expanded(

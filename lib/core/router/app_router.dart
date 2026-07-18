@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:nilemarket/core/constants/legal_text.dart';
 import 'package:nilemarket/features/auth/screens/complete_profile_screen.dart';
 import 'package:nilemarket/features/marketplace/screens/categories_screen.dart';
 import 'package:nilemarket/features/marketplace/screens/category_listings_screen.dart';
@@ -6,11 +7,14 @@ import 'package:nilemarket/features/marketplace/screens/home_screen.dart';
 import 'package:nilemarket/features/marketplace/screens/listing_details_screen.dart';
 import 'package:nilemarket/features/marketplace/screens/search_screen.dart';
 import 'package:nilemarket/features/marketplace/screens/seller_profile_screen.dart';
+import 'package:nilemarket/features/profile/screens/edit_profile_screen.dart';
 import 'package:nilemarket/features/profile/screens/profile_screen.dart';
+import 'package:nilemarket/features/profile/screens/saved_listings_screen.dart';
+import 'package:nilemarket/features/profile/screens/settings_screen.dart';
 import 'package:nilemarket/features/selling/screens/create_listing_screen.dart';
 import 'package:nilemarket/features/selling/screens/edit_listing_screen.dart';
 import 'package:nilemarket/features/selling/screens/my_listings_screen.dart';
-import 'package:nilemarket/shared_screens/coming_soon_screen.dart';
+import 'package:nilemarket/shared_screens/static_text_screen.dart';
 import '../../features/auth/screens/splash_screen.dart';
 import '../../features/auth/screens/welcome_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
@@ -41,11 +45,7 @@ final GoRouter appRouter = GoRouter(
       path: '/create-listing',
       builder: (context, state) => const CreateListingScreen(),
     ),
-    GoRoute(
-      path: '/saved',
-      builder: (context, state) =>
-          const ComingSoonScreen(title: 'Saved Listings'),
-    ),
+
     GoRoute(
       path: '/profile',
       builder: (context, state) => const ProfileScreen(),
@@ -77,17 +77,31 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/saved',
-      builder: (context, state) =>
-          const ComingSoonScreen(title: 'Saved Listings'),
+      builder: (context, state) => const SavedListingsScreen(),
     ),
     GoRoute(
       path: '/edit-profile',
-      builder: (context, state) =>
-          const ComingSoonScreen(title: 'Edit Profile'),
+      builder: (context, state) => const EditProfileScreen(),
     ),
     GoRoute(
       path: '/settings',
-      builder: (context, state) => const ComingSoonScreen(title: 'Settings'),
+      builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/settings/privacy',
+      builder: (context, state) => const StaticTextScreen(
+        title: 'Privacy Policy',
+        body: privacyPolicyText,
+        currentRoute: '/settings/privacy',
+      ),
+    ),
+    GoRoute(
+      path: '/settings/terms',
+      builder: (context, state) => const StaticTextScreen(
+        title: 'Terms of Service',
+        body: termsOfServiceText,
+        currentRoute: '/settings/terms',
+      ),
     ),
     GoRoute(
       path: '/edit-listing/:id',
