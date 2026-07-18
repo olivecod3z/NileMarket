@@ -305,7 +305,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
         Text(
           Formatters.currency((listing['price'] as num).toDouble()),
           style: AppTextStyles.heading2.copyWith(
-            color: AppColors.marketplaceGreen,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),

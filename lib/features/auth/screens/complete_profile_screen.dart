@@ -200,7 +200,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             controller: _bioController,
             maxLines: 3,
             decoration: const InputDecoration(
-              labelText: 'Bio (optional)',
+              labelText: 'Bio (optional). Describe what you sell',
               hintText: 'A short intro about yourself',
               alignLabelWithHint: true,
             ),

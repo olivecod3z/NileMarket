@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nilemarket/core/theme/app_colors.dart';
 import 'package:nilemarket/core/theme/app_text_styles.dart';
-import 'package:nilemarket/core/theme/app_radius.dart';
 import 'package:nilemarket/core/utils/responsive.dart';
 import 'package:nilemarket/core/widgets/app_shell.dart';
 import 'package:nilemarket/core/widgets/listing_card.dart';

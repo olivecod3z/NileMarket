@@ -119,6 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   SliverToBoxAdapter(child: _searchBar(context)),
                   SliverToBoxAdapter(child: _bannerCarousel(context)),
                   SliverToBoxAdapter(child: _typeToggle()),
+                  SliverToBoxAdapter(child: _categoriesHeader(context)),
                   SliverToBoxAdapter(child: _categoryChips()),
                   SliverToBoxAdapter(
                     child: Padding(
@@ -320,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _categoryChips() {
     final categories = _currentCategories;
     return Padding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.only(top: 4),
       child: SizedBox(
         height: 36,
         child: ListView.separated(
@@ -463,4 +464,29 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+}
+
+Widget _categoriesHeader(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text('Categories', style: AppTextStyles.title),
+        TextButton(
+          onPressed: () => context.push('/categories'),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          ),
+          child: Text(
+            'See all →',
+            style: AppTextStyles.body.copyWith(
+              color: AppColors.nileBlue,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }

@@ -141,7 +141,7 @@ class ListingCard extends StatelessWidget {
                       Text(
                         Formatters.currency(price),
                         style: AppTextStyles.title.copyWith(
-                          color: AppColors.marketplaceGreen,
+                          color: AppColors.textPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

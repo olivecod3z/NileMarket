@@ -1,7 +1,10 @@
 import 'package:go_router/go_router.dart';
 import 'package:nilemarket/features/auth/screens/complete_profile_screen.dart';
+import 'package:nilemarket/features/marketplace/screens/categories_screen.dart';
+import 'package:nilemarket/features/marketplace/screens/category_listings_screen.dart';
 import 'package:nilemarket/features/marketplace/screens/home_screen.dart';
 import 'package:nilemarket/features/marketplace/screens/listing_details_screen.dart';
+import 'package:nilemarket/features/marketplace/screens/search_screen.dart';
 import 'package:nilemarket/features/marketplace/screens/seller_profile_screen.dart';
 import 'package:nilemarket/features/selling/screens/create_listing_screen.dart';
 import 'package:nilemarket/shared_screens/coming_soon_screen.dart';
@@ -30,10 +33,7 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const CompleteProfileScreen(),
     ),
     GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
-    GoRoute(
-      path: '/search',
-      builder: (context, state) => const ComingSoonScreen(title: 'Search'),
-    ),
+
     GoRoute(
       path: '/create-listing',
       builder: (context, state) => const CreateListingScreen(),
@@ -56,6 +56,17 @@ final GoRouter appRouter = GoRouter(
       path: '/seller/:id',
       builder: (context, state) =>
           SellerProfileScreen(sellerId: state.pathParameters['id']!),
+    ),
+    GoRoute(path: '/search', builder: (context, state) => const SearchScreen()),
+    GoRoute(
+      path: '/categories',
+      builder: (context, state) => const CategoriesScreen(),
+    ),
+    GoRoute(
+      path: '/category/:name',
+      builder: (context, state) => CategoryListingsScreen(
+        category: Uri.decodeComponent(state.pathParameters['name']!),
+      ),
     ),
   ],
 );
